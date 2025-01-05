@@ -1,102 +1,105 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const App());
+  runApp(MyApp());
 }
 
-class App extends StatelessWidget {
-  const App({super.key});
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Layout',
+      title: 'Shopping App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Programa Layout'),
+      home: ProductListPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({
-    super.key,
-    required this.title,
-  });
+class Product {
+  final String name;
+  final double price;
 
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Product(this.name, this.price);
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class ProductListPage extends StatefulWidget {
+  @override
+  _ProductListPageState createState() => _ProductListPageState();
+}
+
+class _ProductListPageState extends State<ProductListPage> {
+  final List<Product> _products = [
+    Product('Product 1', 29.99),
+    Product('Product 2', 49.99),
+    Product('Product 3', 19.99),
+    Product('Product 4', 39.99),
+  ];
+
+  final List<Product> _cart = [];
+
+  void _addToCart(Product product) {
+    setState(() {
+      _cart.add(product);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        centerTitle: true,
+        title: Text('Product List'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CartPage(_cart)),
+              );
+            },
+          )
+        ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Expanded(
-              child: Container(
-                alignment: Alignment.center,
-                color: const Color.fromARGB(255, 247, 214, 96),
-                child: const Text('Layout Superior'),
-              ),
+      body: ListView.builder(
+        itemCount: _products.length,
+        itemBuilder: (context, index) {
+          final product = _products[index];
+          return ListTile(
+            title: Text(product.name),
+            subtitle: Text('\$${product.price}'),
+            trailing: IconButton(
+              icon: Icon(Icons.add_shopping_cart),
+              onPressed: () => _addToCart(product),
             ),
-            Expanded(
-              flex: 8,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    child: Container(
-                      alignment: Alignment.center,
-                      color: const Color.fromARGB(255, 237, 102, 76),
-                      child: const   Text('Primeira Linha'),
-                    ),
-                  ),
-                   Expanded(
-                    flex: 2,
-                    child: Container(
-                      alignment: Alignment.center,
-                      color: Colors.redAccent,
-                      child: const Text('Segunda Linha'),
-                    ),
-                  ),
-                Expanded(
-                    child: Container(
-                      alignment: Alignment.center,
-                      color: Colors.red,
-                      child: const Text('Terceira Linha'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Container(
-                alignment: Alignment.center,
-                color: const Color.fromARGB(255, 245, 162, 73),
-                child: const Text('Layout Inferior'),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+    );
+  }
+}
+
+class CartPage extends StatelessWidget {
+  final List<Product> cart;
+
+  CartPage(this.cart);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Cart'),
+      ),
+      body: ListView.builder(
+        itemCount: cart.length,
+        itemBuilder: (context, index) {
+          final product = cart[index];
+          return ListTile(
+            title: Text(product.name),
+            subtitle: Text('\$${product.price}'),
+          );
+        },
       ),
     );
   }
